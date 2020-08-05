@@ -95,6 +95,7 @@ void init()
   void init_torus(void);
   void init_sndwave(void);
   void init_entwave(void);
+  void init_collapsar(void);
   void init_monopole(double Rout_val);
 
   switch( WHICHPROBLEM ) {
@@ -114,6 +115,9 @@ void init()
   case ENTWAVE_TEST :
     init_entwave() ;
     break ;
+  case COLLAPSAR :
+    init_collapsar() ;
+    break;
   case BONDI_PROBLEM_1D:
   case BONDI_PROBLEM_2D:
     init_bondi();
@@ -166,7 +170,7 @@ void init_torus()
   dt = 1.e-5 ;
   R0 = 0.0 ;
   Rin = 0.87*(1. + sqrt(1. - a*a)) ;  //.98
-  Rout = 1e5;
+  Rout = 1e3;
   rbr = 400.;
   npow2=4.0; //power exponent
   cpow2=1.0; //exponent prefactor (the larger it is, the more hyperexponentiation is)
@@ -212,10 +216,10 @@ void init_torus()
   /* output choices */
   tf = 10000.0 ;
 
-  DTd = 10.; /* dumping frequency, in units of M */
-  DTl = 10. ;	/* logfile frequency, in units of M */
-  DTi = 10. ; 	/* image file frequ., in units of M */
-  DTr = 10. ; /* restart file frequ., in units of M */
+  DTd = 100.; /* dumping frequency, in units of M */
+  DTl = 100. ;	/* logfile frequency, in units of M */
+  DTi = 100. ; 	/* image file frequ., in units of M */
+  DTr = 100. ; /* restart file frequ., in units of M */
   DTr01 = 100. ; /* restart file frequ., in timesteps */
 
   /* start diagnostic counters */
@@ -1203,10 +1207,10 @@ void init_sndwave()
   
   tf = tfac/mycs;
   
-  DTd = tf/10. ;	/* dumping frequency, in units of M */
-  DTl = tf/10. ;	/* logfile frequency, in units of M */
-  DTi = tf/10. ; 	/* image file frequ., in units of M */
-  DTr = tf/10. ; /* restart file frequ., in units of M */
+  DTd = 100. ;	/* dumping frequency, in units of M */
+  DTl = 100. ;	/* logfile frequency, in units of M */
+  DTi = 100. ; 	/* image file frequ., in units of M */
+  DTr = 100. ; /* restart file frequ., in units of M */
   DTr01 = 1000 ; /* restart file frequ., in timesteps */
   
   /* start diagnostic counters */
@@ -1250,6 +1254,155 @@ void init_sndwave()
   
 }
 
+void init_collapsar()
+{
+  int i,j,k ;
+  double r,th,phi,sth,cth ;
+  double ur,uh,up,u,rho ;
+  double X[NDIM] ;
+  struct of_geom geom ;
+  double rhor;
+  double M_STAR,Rs,alphap,betap,rho0,R_STARcm,G,Omega0,A_rot,Ap,Bp,Fe_core;
+  double r_rc,t_rc,m_rc;
+  /* for magnetic field */
+  double A[N1+D1][N2+D2][N3+D3] ;
+  double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
+  double rmax, lfish_calc(double rmax) ;
+
+  M_STAR = 14; // stellar mass in solar mass
+  R_STARcm = 1e11; // stellar radius in cm
+  r_rc = 0.3*M_STAR*3e5; // Schwarzschild radius of the BH / length units
+  m_rc = 0.3*M_STAR*2e33; // mass units
+  Fe_core = 1e8/r_rc;
+
+  gam = 4./3. ;
+  a = 0.8 ; // black hole spin
+
+  lim = MC ;
+  failed = 0 ;    /* start slow */
+  cour = 0.8 ;
+  dt = 1.e-5 ;
+  rhor = (1. + sqrt(1. - a*a)) ;
+  R0 = 0 ; //-2*rhor ;
+  Rin = 0.5*rhor ;
+
+  G = 1; // G in code units
+  Rs = R_STARcm/r_rc ; // stellar radius in code units
+  Rout = 2*Rs ; // edge of the grid
+
+  rbr = 10*Rout; // beginning of the lower res. patch
+  npow2=4.0; // power exponent
+  cpow2=1.0; // exponent prefactor (the larger it is, the more hyperexponentiation is)
+
+
+  t = 0. ;
+  hslope = 1.0 ; // uniform angular grid
+
+  fractheta = 1.; // use full pi-wedge in theta
+  fracphi = 1.;
+
+  set_arrays() ;
+  set_grid() ;
+
+  coord(5,0,0,CENT,X) ;
+  bl_coord(X,&r,&th,&phi) ;
+  fprintf(stderr,"rmin: %g\n",r) ;
+  fprintf(stderr,"rmin/r_hor: %g\n",r/(1. + sqrt(1. - a*a))) ;
+
+  /* output choices */
+  tf = 1e6 ;
+
+  DTd = 10 ;      /* dumping frequency, in units of M */
+  DTl = 10 ;      /* logfile frequency, in units of M */
+  DTi = 100 ;      /* image file frequ., in units of M */
+  DTr = 100 ;   /* restart file frequ., in units of M */
+  DTr01 = 1e3 ; /* restart file frequ., in timesteps */
+
+  /* start diagnostic counters */
+  dump_cnt = 0 ;
+  image_cnt = 0 ;
+  rdump_cnt = 0 ;
+  rdump01_cnt = 0 ;
+  defcon = 1. ;
+
+  rhomax = 0. ;
+  umax = 0. ;
+
+
+  alphap = 2; // inner density profile power-law
+  betap = 3; // outer density profile power-law
+  rho0 = 2e33*M_STAR/3.14/R_STARcm/m_rc*pow(r_rc,3); // density normalization
+  Omega0 = 1*r_rc; // omega0 in code units
+  A_rot = 1e8/r_rc;
+  ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
+
+    coord(i,j,k,CENT,X) ;
+    bl_coord(X,&r,&th,&phi) ;
+
+    sth = sin(th) ;
+    cth = cos(th) ;
+
+    /* regions outside uniform density distribution */
+    if (r < 10) {
+      rho = 0;
+      }
+    else if(r < Rs) {
+      rho = rho0*pow(r,-alphap)*pow((Rs-r)/Rs,betap);
+      u = 1e-3*pow(rho,gam)/(gam - 1.) ; 
+      //u = 1/(gam-1)*3.14*G*pow(rho0,2)/pow(Rs,3)
+      //    * (1/(12*pow(r*Rs,3))
+      //    * (3*pow(r,7)-28*pow(r,6)*Rs+126*pow(r,5)*Rs*Rs-420*pow(r,4)*pow(Rs,3)+252*r*r*pow(Rs,5)-42*r*pow(Rs,6)+4*pow(Rs,7))
+      //   - 35*Rs*log(r)); // Newtonian hydrostatic eq.
+      ur = 0. ;
+      uh = 0. ;
+      //  up = 0. ;
+    up = Omega0/(1+pow(r/A_rot,2))/3e10; // angular velocity
+    p[i][j][k][RHO] = rho ;
+    p[i][j][k][UU] = u ;
+    p[i][j][k][U1] = ur ;
+    p[i][j][k][U2] = uh ;
+    p[i][j][k][U3] = up ;
+    coord_transform(p[i][j][k],i,j,k) ;
+   }
+  /* region inside initial uniform density */
+  else {
+    rho = 1e-10 ;
+    u = 1e-3*pow(rho,gam)/(gam - 1.) ;
+    ur = 0. ;
+    uh = 0. ;
+
+
+    p[i][j][k][RHO] = rho ;
+    p[i][j][k][UU] = u;
+    p[i][j][k][U1] = ur ;
+    p[i][j][k][U2] = uh ;
+    p[i][j][k][U3] = up ;
+
+    /* convert from 4-vel to 3-vel */
+    coord_transform(p[i][j][k],i,j,k) ;
+  }
+
+
+    p[i][j][k][B1] = 0. ;
+    p[i][j][k][B2] = 0. ;
+    p[i][j][k][B3] = 0. ;
+
+  }
+
+  Bp = 1e3/pow(m_rc,0.5)*pow(r_rc,1.5); // magnetic field normalization
+  Ap = Bp*pow(Rs,3)/2;
+  ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
+    coord(i,j,k,EDGE3,X) ;
+    bl_coord(X,&r,&th,&phi) ;
+    A[i][j][k] = Ap*pow(sin(th),2)*pow(r,2)/(pow(r,3)+pow(Fe_core,3)); // dipole magnetic field
+  }
+ 
+  fixup(p);
+  bsq_max = compute_B_from_A(A,p);
+  fixup(p) ;
+  bound_prim(p) ;
+
+}
 
 /* this version starts w/ BL 4-velocity and
  * converts to relative 4-velocities in modified

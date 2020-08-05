@@ -1122,7 +1122,7 @@ if __name__ == "__main__":
             plt.loglog(r[:,ny//2,0],rho[:,ny//2,0])
             plt.xlabel("r")
             plt.ylabel("rho")
-        if False:
+        if True:
             #2D plot example
             plt.clf()
             rg("gdump")
