@@ -1262,8 +1262,8 @@ void init_collapsar()
   double X[NDIM] ;
   struct of_geom geom ;
   double rhor;
-  double M_STAR,Rs,alphap,betap,rho0,R_STARcm,G,Omega0,A_rot,Ap,Bp,Fe_core;
-  double r_rc,t_rc,m_rc;
+  double M_STAR,Rs,alphap,betap,rho0,R_STARcm,G,Omega0,Omega0_limit,A_rot,Bp,Ap,Ap_mag_hole;
+  double r_rc,t_rc,m_rc,r_mag_hole,r_hole,Fe_core;
   /* for magnetic field */
   double A[N1+D1][N2+D2][N3+D3] ;
   double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
@@ -1271,7 +1271,7 @@ void init_collapsar()
 
   M_STAR = 14; // stellar mass in solar mass
   R_STARcm = 1e11; // stellar radius in cm
-  r_rc = 0.3*M_STAR*3e5; // Schwarzschild radius of the BH / length units
+  r_rc = 0.3*M_STAR*1.5e5; // Schwarzschild radius of the BH / length units
   m_rc = 0.3*M_STAR*2e33; // mass units
   Fe_core = 1e8/r_rc;
 
@@ -1310,13 +1310,13 @@ void init_collapsar()
   fprintf(stderr,"rmin/r_hor: %g\n",r/(1. + sqrt(1. - a*a))) ;
 
   /* output choices */
-  tf = 1e6 ;
+  tf = 5e5 ;
 
-  DTd = 10 ;      /* dumping frequency, in units of M */
-  DTl = 10 ;      /* logfile frequency, in units of M */
-  DTi = 100 ;      /* image file frequ., in units of M */
-  DTr = 100 ;   /* restart file frequ., in units of M */
-  DTr01 = 1e3 ; /* restart file frequ., in timesteps */
+  DTd = 50 ;      /* dumping frequency, in units of M */
+  DTl = 50 ;      /* logfile frequency, in units of M */
+  DTi = 1e3 ;      /* image file frequ., in units of M */
+  DTr = 1e3 ;   /* restart file frequ., in units of M */
+  DTr01 = 1e4 ; /* restart file frequ., in timesteps */
 
   /* start diagnostic counters */
   dump_cnt = 0 ;
@@ -1332,7 +1332,8 @@ void init_collapsar()
   alphap = 2; // inner density profile power-law
   betap = 3; // outer density profile power-law
   rho0 = 2e33*M_STAR/3.14/R_STARcm/m_rc*pow(r_rc,3); // density normalization
-  Omega0 = 1*r_rc; // omega0 in code units
+  Omega0 = 5 ;
+  Omega0_limit = 1e-3 ;
   A_rot = 1e8/r_rc;
   ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
 
@@ -1343,34 +1344,47 @@ void init_collapsar()
     cth = cos(th) ;
 
     /* regions outside uniform density distribution */
-    if (r < 10) {
-      rho = 0;
+    r_hole = 10;
+    if (r < r_hole) {
+      rho = rho0*pow(r_hole,-alphap)*r/r_hole ;
+      u = 1e-6*rho/r ;
+      p[i][j][k][RHO] = rho ;
+      p[i][j][k][UU] = u ;
+      p[i][j][k][U1] = 0. ;
+      p[i][j][k][U2] = 0. ;
+      p[i][j][k][U3] = 0. ;
       }
     else if(r < Rs) {
       rho = rho0*pow(r,-alphap)*pow((Rs-r)/Rs,betap);
-      u = 1e-3*pow(rho,gam)/(gam - 1.) ; 
+      u = 1e-6*rho/r;//1e-3*pow(rho,gam)/(gam - 1.) ; 
       //u = 1/(gam-1)*3.14*G*pow(rho0,2)/pow(Rs,3)
       //    * (1/(12*pow(r*Rs,3))
       //    * (3*pow(r,7)-28*pow(r,6)*Rs+126*pow(r,5)*Rs*Rs-420*pow(r,4)*pow(Rs,3)+252*r*r*pow(Rs,5)-42*r*pow(Rs,6)+4*pow(Rs,7))
       //   - 35*Rs*log(r)); // Newtonian hydrostatic eq.
       ur = 0. ;
       uh = 0. ;
-      //  up = 0. ;
-    up = Omega0/(1+pow(r/A_rot,2))/3e10; // angular velocity
-    p[i][j][k][RHO] = rho ;
-    p[i][j][k][UU] = u ;
-    p[i][j][k][U1] = ur ;
-    p[i][j][k][U2] = uh ;
-    p[i][j][k][U3] = up ;
+      up = 0. ;
+      //up = Omega0/(1+pow(r/A_rot,2))/3e10; // angular velocity
+      if (Omega0/pow(r*sin(th),2) > Omega0_limit) {
+	up = Omega0_limit;
+	}
+      else {
+	up = Omega0/pow(r*sin(th),2);
+      }
+      p[i][j][k][RHO] = rho ;
+      p[i][j][k][UU] = u ;
+      p[i][j][k][U1] = ur ;
+      p[i][j][k][U2] = uh ;
+      p[i][j][k][U3] = up ;
     coord_transform(p[i][j][k],i,j,k) ;
    }
   /* region inside initial uniform density */
   else {
-    rho = 1e-10 ;
-    u = 1e-3*pow(rho,gam)/(gam - 1.) ;
+    rho = 1e-11 ;
+    u = rho/1e6;//u = 1e-3*pow(rho,gam)/(gam - 1.) ;
     ur = 0. ;
     uh = 0. ;
-
+    up = 0. ;
 
     p[i][j][k][RHO] = rho ;
     p[i][j][k][UU] = u;
@@ -1387,18 +1401,31 @@ void init_collapsar()
     p[i][j][k][B2] = 0. ;
     p[i][j][k][B3] = 0. ;
 
-  }
-
-  Bp = 1e3/pow(m_rc,0.5)*pow(r_rc,1.5); // magnetic field normalization
-  Ap = Bp*pow(Rs,3)/2;
+  } 
+  r_mag_hole = r_hole*(1+1e-2); 
+  Bp = 1e3*pow(Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
+  Ap_mag_hole = Bp*pow(sin(3.1416/2),2)*pow(r_mag_hole,2)/(pow(r_mag_hole,3)+pow(Fe_core,3));
   ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
     coord(i,j,k,EDGE3,X) ;
     bl_coord(X,&r,&th,&phi) ;
-    A[i][j][k] = Ap*pow(sin(th),2)*pow(r,2)/(pow(r,3)+pow(Fe_core,3)); // dipole magnetic field
+    if (r < Rs) {
+      //  Ap = Bp*pow(sin(th),2)*pow(r,2)/(pow(r,3)+pow(Fe_core,3)); // dipole magnetic field
+      Ap = Bp*pow(sin(th),2)*pow(sqrt(pow(r,2)-pow(r_mag_hole,2)),2)/(pow(sqrt(pow(r,2)-pow(r_mag_hole,2)),3)+pow(Fe_core,3)); // dipole magnetic field
+    }
+    else {
+      Ap = 0;
+    }
+    if (r < r_mag_hole) {//if (Ap < Ap_mag_hole) {
+      A[i][j][k] = 0 ;
+    }
+    else {
+      A[i][j][k] = Ap ;
+    }
   }
- 
+  
   fixup(p);
   bsq_max = compute_B_from_A(A,p);
+  
   fixup(p) ;
   bound_prim(p) ;
 
