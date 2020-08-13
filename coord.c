@@ -407,7 +407,7 @@ void vofx_sjetcoords( double *X, double *V )
   else{
     V[2] = M_PI - (M_PI * (1.0-X[2])) + ((1. - myhslope) / 2.) * (-mysin(2. * M_PI * (1.0-X[2])));
   }
-#elif(1) //SASHA's
+#elif(0) //SASHA's
   fac = Ftrgen( fabs(X[2]), global_fracdisk, 1-global_fracjet, 0, 1 );
   
   rbeforedisk = mins( V[1], global_r0disk, 0.5*global_r0disk );
@@ -424,6 +424,32 @@ void vofx_sjetcoords( double *X, double *V )
   thetadisk = thetaofx2( X[2], ror0nudisk );
   thetajet = thetaofx2( X[2], ror0nujet );
   V[2] = fac*thetajet + (1 - fac)*thetadisk;
+#elif(1) //SASHA's simple
+    double r1disk, r1jet, r2jet, r1, dr;
+    fac = Ftrgen( fabs(X[2]), global_fracdisk, 1-global_fracjet, 0, 1 );
+    
+    r1disk = mins( V[1]/global_r0disk, 1. , 0.5 ) * (global_r0disk/global_r0grid);
+    //r2disk = V[1]/r1;
+
+    if( global_r0disk >= global_r0jet ) {
+        r1jet = mins( V[1]/global_r0jet, 1. , 0.5 ) * (global_r0jet/global_r0grid);
+        r2jet = V[1]/(r1jet*global_r0grid);
+        dr = global_rjetend/global_r0jet;
+        r2jet = mins( r2jet, dr, 0.5*dr );
+    }
+    else {
+        r1jet = mins( V[1]/global_r0disk, 1. , 0.5 ) * (global_r0disk/global_r0grid);
+        r2jet = maxs( V[1]/global_r0jet, 1., 0.5);
+        dr = global_rjetend/global_r0jet;
+        r2jet = mins( r2jet, dr, 0.5*dr );
+    }
+    
+    ror0nudisk = pow( r1disk, 0.5*global_jetnu1);
+    ror0nujet = pow( r1jet, 0.5*global_jetnu1) * pow(r2jet, 0.5*global_jetnu2);
+    
+    thetadisk = thetaofx2( X[2], ror0nudisk );
+    thetajet = thetaofx2( X[2], ror0nujet );
+    V[2] = fac*thetajet + (1 - fac)*thetadisk;
 #else
   V[2] = M_PI_2 * (1.0+ X[2]);
 #endif

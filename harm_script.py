@@ -468,7 +468,7 @@ def read_header(dump,issilent=True,returnheaderline=False):
     fin.close()
     if not dump.startswith("dumps/rdump"):
         if not issilent: print( "dump header: len(header) = %d" % len(header) )
-        nheader = 57
+        nheader = 58
         n = 0
         t = myfloat(np.float64(header[n])); n+=1
         #per tile resolution
@@ -526,13 +526,14 @@ def read_header(dump,issilent=True,returnheaderline=False):
         rdiskend = myfloat(header[n]); n+=1
         r0jet = myfloat(header[n]); n+=1
         rjetend = myfloat(header[n]); n+=1
-        jetnu = myfloat(header[n]); n+=1
+        jetnu2 = myfloat(header[n]); n+=1
+        jetnu1 = myfloat(header[n]); n+=1
         rsjet = myfloat(header[n]); n+=1
         r0grid = myfloat(header[n]); n+=1
         BL = myfloat(header[n]); n+=1
     else:
         print("rdump header")
-        nheader = 48
+        nheader = 49
         n = 0
         #per tile resolution
         N1 = int(header[n]); n+=1
@@ -590,14 +591,15 @@ def read_header(dump,issilent=True,returnheaderline=False):
         timage = myfloat(header[n]); n+=1
         tlog  = myfloat(header[n]); n+=1
     if n < len(header):
-        nheader = 60
+        nheader = 61
         global_fracdisk   = myfloat(header[n]); n+=1
         global_fracjet    = myfloat(header[n]); n+=1
         global_r0disk     = myfloat(header[n]); n+=1
         global_rdiskend   = myfloat(header[n]); n+=1
         global_r0jet      = myfloat(header[n]); n+=1
         global_rjetend    = myfloat(header[n]); n+=1
-        global_jetnu      = myfloat(header[n]); n+=1
+        global_jetnu2      = myfloat(header[n]); n+=1
+        global_jetnu1      = myfloat(header[n]); n+=1
         global_rsjet      = myfloat(header[n]); n+=1
         global_r0grid     = myfloat(header[n]); n+=1
     if n != nheader or n != nheadertot:

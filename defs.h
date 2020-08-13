@@ -228,7 +228,8 @@ double tdump,trdump,timage,tlog ;
 ////////////////////////////////
 double global_fracdisk;
 double global_fracjet;
-double global_jetnu;
+double global_jetnu1;
+double global_jetnu2;
 double global_rsjet;
 double global_r0grid;
 double global_r0jet;

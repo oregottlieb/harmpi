@@ -703,7 +703,8 @@ extern double tdump,trdump,timage,tlog ;
 ////////////////////////////////
 extern double global_fracdisk;
 extern double global_fracjet;
-extern double global_jetnu;
+extern double global_jetnu1;
+extern double global_jetnu2;
 extern double global_rsjet;
 extern double global_r0grid;
 extern double global_r0jet;

@@ -209,7 +209,8 @@ size_t dump(int dumpno, int is_dry_run)
         fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
         fprintf(fp, FMT_DBL_OUT, global_r0jet     );
         fprintf(fp, FMT_DBL_OUT, global_rjetend   );
-        fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+        fprintf(fp, FMT_DBL_OUT, global_jetnu2     );
+        fprintf(fp, FMT_DBL_OUT, global_jetnu1     );
         fprintf(fp, FMT_DBL_OUT, global_rsjet     );
         fprintf(fp, FMT_DBL_OUT, global_r0grid    );
         fprintf(fp, FMT_INT_OUT, (int)BL    );
@@ -442,7 +443,8 @@ size_t gdump(int is_dry_run)
         fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
         fprintf(fp, FMT_DBL_OUT, global_r0jet     );
         fprintf(fp, FMT_DBL_OUT, global_rjetend   );
-        fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+        fprintf(fp, FMT_DBL_OUT, global_jetnu2     );
+        fprintf(fp, FMT_DBL_OUT, global_jetnu1     );
         fprintf(fp, FMT_DBL_OUT, global_rsjet     );
         fprintf(fp, FMT_DBL_OUT, global_r0grid    );
         fprintf(fp, FMT_INT_OUT, (int)BL    );
@@ -622,7 +624,8 @@ size_t gdump2(int is_dry_run)
             fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
             fprintf(fp, FMT_DBL_OUT, global_r0jet     );
             fprintf(fp, FMT_DBL_OUT, global_rjetend   );
-            fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+            fprintf(fp, FMT_DBL_OUT, global_jetnu2     );
+            fprintf(fp, FMT_DBL_OUT, global_jetnu1     );
             fprintf(fp, FMT_DBL_OUT, global_rsjet     );
             fprintf(fp, FMT_DBL_OUT, global_r0grid    );
             fprintf(fp, FMT_INT_OUT, (int)BL    );
@@ -786,7 +789,8 @@ void fdump(int dumpno)
     fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
     fprintf(fp, FMT_DBL_OUT, global_r0jet     );
     fprintf(fp, FMT_DBL_OUT, global_rjetend   );
-    fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+    fprintf(fp, FMT_DBL_OUT, global_jetnu2     );
+    fprintf(fp, FMT_DBL_OUT, global_jetnu1     );
     fprintf(fp, FMT_DBL_OUT, global_rsjet     );
     fprintf(fp, FMT_DBL_OUT, global_r0grid    );
     fprintf(fp, FMT_INT_OUT, (int)BL    );

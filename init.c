@@ -1303,6 +1303,54 @@ void init_collapsar()
   fractheta = 1.; // use full pi-wedge in theta
   fracphi = 1.;
 
+#if(BL==2)
+  ////////////////////
+  //RADIAL GRID SETUP
+  ////////////////////
+  rbr = Rin*1e4; //200.;  //make it smaller than the default 1000. while trying to make thin disks work
+  
+  /////////////////////
+  //ANGULAR GRID SETUP (so far irrelevant for WHICHPROBLEM==NSTAR)
+  /////////////////////
+  
+  //transverse resolution fraction devoted to different components
+  //(sum should be <1)
+  global_fracdisk = 0.36; //fraction of resolution going into the disk
+  global_fracjet = 0.15; //fraction of resolution going into the jets
+  
+  global_jetnu1 = -1.;  //the nu-parameter that determines jet shape
+  global_jetnu2 = 0.75;  //the nu-parameter that determines jet shape
+  
+  //not used any more
+  global_rsjet = 0.0;
+  
+  //distance at which theta-resolution is *exactly* uniform in the jet grid -- want to have this at Rin;
+  //the larger r0grid, the larger the thickness of the jet
+  global_r0grid = Rin;
+  
+  //distance out to which jet decollimates
+  //the larger it is, the wider is the jet grid
+  global_r0jet = 40*Rin;
+  
+  //distance beyond which the jet grid stops collimating and becomes radial
+  global_rjetend = 1e3;
+  
+  //distance out to which the disk decollimates
+  //the larger r0disk, the thinner is the disk grid
+  global_r0disk = 2*Rin;
+  
+  //not used any more
+  global_rdiskend = 1.e7;
+#endif
+  //cylindrification parameters
+  global_x10 = 3.0;  //radial distance in MCOORD until which the innermost angular cell is cylinrdical
+  global_x20 = -1. + 1./mpi_ntot[2];     //This restricts grid cylindrification to the one
+  //single grid cell closest to the pole (other cells virtually unaffeced, so there evolution is accurate).
+  //This trick minimizes the resulting pole deresolution and relaxes the time step.
+  //The innermost grid cell is evolved inaccurately whether you resolve it or not, and it will be fixed
+  //by POLEFIX (see bounds.c).
+
+  
   set_arrays() ;
   set_grid() ;
 

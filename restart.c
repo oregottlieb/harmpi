@@ -163,7 +163,8 @@ void restart_write(int dumpno)
       fprintf(fp, FMT_DBL_OUT, global_rdiskend  );
       fprintf(fp, FMT_DBL_OUT, global_r0jet     );
       fprintf(fp, FMT_DBL_OUT, global_rjetend   );
-      fprintf(fp, FMT_DBL_OUT, global_jetnu     );
+      fprintf(fp, FMT_DBL_OUT, global_jetnu2     );
+      fprintf(fp, FMT_DBL_OUT, global_jetnu1     );
       fprintf(fp, FMT_DBL_OUT, global_rsjet     );
       fprintf(fp, FMT_DBL_OUT, global_r0grid    );
 
@@ -552,7 +553,8 @@ int restart_read(int dumpno)
   fscanf_and_bcast(fp, "%lf", &global_rdiskend   );
   fscanf_and_bcast(fp, "%lf", &global_r0jet      );
   fscanf_and_bcast(fp, "%lf", &global_rjetend    );
-  fscanf_and_bcast(fp, "%lf", &global_jetnu      );
+  fscanf_and_bcast(fp, "%lf", &global_jetnu2      );
+  fscanf_and_bcast(fp, "%lf", &global_jetnu1      );
   fscanf_and_bcast(fp, "%lf", &global_rsjet      );
   fscanf_and_bcast(fp, "%lf", &global_r0grid      );
   
