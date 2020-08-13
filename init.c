@@ -1358,7 +1358,7 @@ void init_collapsar()
       }
     else if(r < Rs) {
       rho = rho0*pow(r,-alphap)*pow((Rs-r)/Rs,betap);
-      u = 1e-6*rho/r;//1e-3*pow(rho,gam)/(gam - 1.) ; 
+      u = 200*1e-6*rho/r;//1e-3*pow(rho,gam)/(gam - 1.) ; 
       //u = 1/(gam-1)*3.14*G*pow(rho0,2)/pow(Rs,3)
       //    * (1/(12*pow(r*Rs,3))
       //    * (3*pow(r,7)-28*pow(r,6)*Rs+126*pow(r,5)*Rs*Rs-420*pow(r,4)*pow(Rs,3)+252*r*r*pow(Rs,5)-42*r*pow(Rs,6)+4*pow(Rs,7))
