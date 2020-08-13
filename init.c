@@ -1405,7 +1405,7 @@ void init_collapsar()
 
   } 
   r_mag_hole = r_hole*(1+1e-2); 
-  Bp = 3e4*1e3*pow(Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
+  Bp = 3e5*1e3*pow(Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
   Ap_mag_hole = Bp*pow(sin(3.1416/2),2)*pow(r_mag_hole,2)/(pow(r_mag_hole,3)+pow(Fe_core,3));
   ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
     coord(i,j,k,EDGE3,X) ;
