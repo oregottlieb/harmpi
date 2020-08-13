@@ -1289,8 +1289,8 @@ void init_collapsar()
   Rin = 0.5*rhor ;
 
   G = 1; // G in code units
-  Rs = R_STARcm/r_rc ; // stellar radius in code units
-  Rout = 2*Rs ; // edge of the grid
+  Rs = 0.01*R_STARcm/r_rc ; // stellar radius in code units
+  Rout = 20*Rs ; // edge of the grid
 
   rbr = 10*Rout; // beginning of the lower res. patch
   npow2=4.0; // power exponent
