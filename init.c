@@ -1270,6 +1270,7 @@ void init_collapsar()
   double A[N1+D1][N2+D2][N3+D3] ;
   double rho_av,rhomax,umax,beta,bsq_ij,bsq_max,norm,q,beta_act ;
   double rmax, lfish_calc(double rmax) ;
+  double fact;
 
   M_STAR = 14; // stellar mass in solar mass
   R_STARcm = 1e11; // stellar radius in cm
@@ -1289,7 +1290,8 @@ void init_collapsar()
   Rin = 0.5*rhor ;
 
   G = 1; // G in code units
-  Rs = 0.01*R_STARcm/r_rc ; // stellar radius in code units
+  fact = 0.1;
+  Rs = fact*R_STARcm/r_rc ; // stellar radius in code units
   Rout = 20*Rs ; // edge of the grid
 
   rbr = 10*Rout; // beginning of the lower res. patch
@@ -1453,7 +1455,7 @@ void init_collapsar()
 
   } 
   r_mag_hole = r_hole*(1+1e-2); 
-  Bp = 3e5*1e3*pow(100*Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
+  Bp = 3e5*1e3*pow(Rs/fact,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
   Ap_mag_hole = Bp*pow(sin(3.1416/2),2)*pow(r_mag_hole,2)/(pow(r_mag_hole,3)+pow(Fe_core,3));
   ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
     coord(i,j,k,EDGE3,X) ;
