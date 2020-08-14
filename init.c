@@ -1287,7 +1287,7 @@ void init_collapsar()
   dt = 1.e-5 ;
   rhor = (1. + sqrt(1. - a*a)) ;
   R0 = 0 ; //-2*rhor ;
-  Rin = 0.5*rhor ;
+  Rin = 0.8*rhor ;
 
   G = 1; // G in code units
   fact = 0.1;
