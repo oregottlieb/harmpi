@@ -1330,7 +1330,7 @@ void init_collapsar()
   global_r0jet = 40*Rin;
   
   //distance beyond which the jet grid stops collimating and becomes radial
-  global_rjetend = 1e3;
+  global_rjetend = 1e4;
   
   //distance out to which the disk decollimates
   //the larger r0disk, the thinner is the disk grid
