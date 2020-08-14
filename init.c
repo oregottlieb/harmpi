@@ -1306,11 +1306,6 @@ void init_collapsar()
   fracphi = 1.;
 
 #if(BL==2)
-  ////////////////////
-  //RADIAL GRID SETUP
-  ////////////////////
-  rbr = Rin*1e4; //200.;  //make it smaller than the default 1000. while trying to make thin disks work
-  
   /////////////////////
   //ANGULAR GRID SETUP (so far irrelevant for WHICHPROBLEM==NSTAR)
   /////////////////////
