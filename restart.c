@@ -297,7 +297,7 @@ int restart_init()
   //cour = 0.9 ;
   //lim = VANL ;
   //tf = 4000. ;
-  tf = 20000.;
+  tf = 1e5;
 
   if(i_am_the_master) fprintf(stderr,"done with restart init.\n") ;
 
