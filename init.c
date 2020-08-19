@@ -1272,7 +1272,7 @@ void init_collapsar()
   double rmax, lfish_calc(double rmax) ;
 
   M_STAR = 14; // stellar mass in solar mass
-  R_STARcm = 1e11; // stellar radius in cm
+  R_STARcm = 4e10; // stellar radius in cm
   r_rc = 0.3*M_STAR*1.5e5; // Schwarzschild radius of the BH / length units
   m_rc = 0.3*M_STAR*2e33; // mass units
   Fe_core = 1e8/r_rc;
@@ -1289,8 +1289,8 @@ void init_collapsar()
   Rin = 0.5*rhor ;
 
   G = 1; // G in code units
-  Rs = 0.01*R_STARcm/r_rc ; // stellar radius in code units
-  Rout = 20*Rs ; // edge of the grid
+  Rs = R_STARcm/r_rc ; // stellar radius in code units
+  Rout = 3*Rs ; // edge of the grid
 
   rbr = 10*Rout; // beginning of the lower res. patch
   npow2=4.0; // power exponent
@@ -1362,8 +1362,8 @@ void init_collapsar()
   /* output choices */
   tf = 5e5 ;
 
-  DTd = 50 ;      /* dumping frequency, in units of M */
-  DTl = 50 ;      /* logfile frequency, in units of M */
+  DTd = 100 ;      /* dumping frequency, in units of M */
+  DTl = 100 ;      /* logfile frequency, in units of M */
   DTi = 1e3 ;      /* image file frequ., in units of M */
   DTr = 1e3 ;   /* restart file frequ., in units of M */
   DTr01 = 1e4 ; /* restart file frequ., in timesteps */
@@ -1381,10 +1381,11 @@ void init_collapsar()
 
   alphap = 2; // inner density profile power-law
   betap = 3; // outer density profile power-law
-  rho0 = 2e33*M_STAR/3.14/R_STARcm/m_rc*pow(r_rc,3); // density normalization
+  rho0 = 1.4e29; // density normalization
   Omega0 = 5 ;
   Omega0_limit = 1e-3 ;
   A_rot = 1e8/r_rc;
+  r_hole = 10;
   ZSLOOP(0,N1-1,0,N2-1,0,N3-1) {
 
     coord(i,j,k,CENT,X) ;
@@ -1394,7 +1395,6 @@ void init_collapsar()
     cth = cos(th) ;
 
     /* regions outside uniform density distribution */
-    r_hole = 10;
     if (r < r_hole) {
       rho = rho0*pow(r_hole,-alphap)*r/r_hole ;
       u = 1e-6*rho/r ;
@@ -1406,7 +1406,7 @@ void init_collapsar()
       }
     else if(r < Rs) {
       rho = rho0*pow(r,-alphap)*pow((Rs-r)/Rs,betap);
-      u = 200*200*1e-6*rho/r;//1e-3*pow(rho,gam)/(gam - 1.) ; 
+      u = 1e-2*rho/r;//1e-3*pow(rho,gam)/(gam - 1.) ; 
       //u = 1/(gam-1)*3.14*G*pow(rho0,2)/pow(Rs,3)
       //    * (1/(12*pow(r*Rs,3))
       //    * (3*pow(r,7)-28*pow(r,6)*Rs+126*pow(r,5)*Rs*Rs-420*pow(r,4)*pow(Rs,3)+252*r*r*pow(Rs,5)-42*r*pow(Rs,6)+4*pow(Rs,7))
@@ -1430,7 +1430,7 @@ void init_collapsar()
    }
   /* region inside initial uniform density */
   else {
-    rho = 1e-11 ;
+    rho = 1e11 ;
     u = rho/1e6;//u = 1e-3*pow(rho,gam)/(gam - 1.) ;
     ur = 0. ;
     uh = 0. ;
@@ -1453,7 +1453,7 @@ void init_collapsar()
 
   } 
   r_mag_hole = r_hole*(1+1e-2); 
-  Bp = 3e5*1e3*pow(100*Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5)/3e10; // magnetic field normalization
+  Bp = 1e11*pow(Rs,3)/pow(m_rc,0.5)*pow(r_rc,1.5); // magnetic field normalization
   Ap_mag_hole = Bp*pow(sin(3.1416/2),2)*pow(r_mag_hole,2)/(pow(r_mag_hole,3)+pow(Fe_core,3));
   ZSLOOP(0,N1-1+D1,0,N2-1+D2,0,N3-1+D3) {
     coord(i,j,k,EDGE3,X) ;
